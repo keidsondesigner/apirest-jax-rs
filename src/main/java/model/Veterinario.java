@@ -5,6 +5,23 @@ public class Veterinario {
   private String nome, crmv;
   private double salario;
 
+  public Veterinario() { }
+
+  public Veterinario(int id) {
+    this.id = id;
+  }
+
+  public Veterinario(String nome, String crmv) {
+    this.nome = nome;
+    this.crmv = crmv;
+  }
+
+  public Veterinario(String nome, String crmv, double salario) {
+    this.nome = nome;
+    this.crmv = crmv;
+    this.salario = salario;
+  }
+
   public Veterinario(int id, String nome, String crmv, double salario) {
     this.id = id;
     this.nome = nome;
