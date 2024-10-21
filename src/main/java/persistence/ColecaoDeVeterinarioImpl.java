@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,15 +26,15 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
     ResultSet resultadoConsulta = null;
     List<Veterinario> listaVeterinarios = new ArrayList<>();
     try {
-      String sql = "SELECT ID, NOME, CRMV, SALARIO FROM VETERINARIO";
+      String sql = "SELECT id, nome, crmv, salario FROM veterinario";
       comandoSql = this.conexao.prepareStatement(sql);
       resultadoConsulta = comandoSql.executeQuery();
       while (resultadoConsulta.next()) {
         Veterinario veterinario = new Veterinario(
-            resultadoConsulta.getInt("ID"),
-            resultadoConsulta.getString("NOME"),
-            resultadoConsulta.getString("CRMV"),
-            resultadoConsulta.getDouble("SALARIO"));
+            resultadoConsulta.getInt("id"),
+            resultadoConsulta.getString("nome"),
+            resultadoConsulta.getString("crmv"),
+            resultadoConsulta.getDouble("salario"));
         listaVeterinarios.add(veterinario);
       }
     } catch (SQLException e) {
@@ -56,16 +58,16 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
     ResultSet resultadoConsulta = null;
     Veterinario veterinario = null;
     try {
-      String sql = "SELECT ID, NOME, CRMV, SALARIO FROM VETERINARIO WHERE ID = ?";
+      String sql = "SELECT id, nome, crmv, salario FROM veterinario WHERE id = ?";
       comandoSql = this.conexao.prepareStatement(sql);
       comandoSql.setInt(1, id);
       resultadoConsulta = comandoSql.executeQuery();
       if (resultadoConsulta.next()) {
-        veterinario = new Veterinario(resultadoConsulta.getInt("ID"), resultadoConsulta.getString("NOME"),
-            resultadoConsulta.getString("CRMV"), resultadoConsulta.getDouble("SALARIO"));
+        veterinario = new Veterinario(resultadoConsulta.getInt("id"), resultadoConsulta.getString("nome"),
+            resultadoConsulta.getString("crmv"), resultadoConsulta.getDouble("salario"));
       }
     } catch (SQLException e) {
-      throw new ColecaoException("Erro ao buscar o veterinário pelo ID!", e);
+      throw new ColecaoException("Erro ao buscar o veterinário pelo id!", e);
     } finally {
       try {
         resultadoConsulta.close();
@@ -85,13 +87,13 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
     List<Veterinario> listaVeterinarios = null;
     try {
       listaVeterinarios = new ArrayList<Veterinario>();
-      String sql = "SELECT ID, NOME, CRMV, SALARIO FROM VETERINARIO WHERE NOME LIKE ?";
+      String sql = "SELECT id, nome, crmv, salario FROM veterinario WHERE nome LIKE ?";
       comandoSql = this.conexao.prepareStatement(sql);
       comandoSql.setString(1, "%" + nome + "%");
       resultadoConsulta = comandoSql.executeQuery();
       while (resultadoConsulta.next()) {
-        Veterinario veterinario = new Veterinario(resultadoConsulta.getInt("ID"), resultadoConsulta.getString("NOME"),
-            resultadoConsulta.getString("CRMV"), resultadoConsulta.getDouble("SALARIO"));
+        Veterinario veterinario = new Veterinario(resultadoConsulta.getInt("id"), resultadoConsulta.getString("nome"),
+            resultadoConsulta.getString("crmv"), resultadoConsulta.getDouble("salario"));
         listaVeterinarios.add(veterinario);
       }
     } catch (SQLException e) {
@@ -114,16 +116,16 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
     ResultSet resultadoConsulta = null;
     Veterinario veterinario = null;
     try {
-      String sql = "SELECT ID, NOME, CRMV, SALARIO FROM VETERINARIO WHERE CRMV = ?";
+      String sql = "SELECT id, nome, crmv, salario FROM veterinario WHERE crmv = ?";
       comandoSql = this.conexao.prepareStatement(sql);
       comandoSql.setString(1, crmv);
       resultadoConsulta = comandoSql.executeQuery();
       if (resultadoConsulta.next()) {
-        veterinario = new Veterinario(resultadoConsulta.getInt("ID"), resultadoConsulta.getString("NOME"),
-            resultadoConsulta.getString("CRMV"), resultadoConsulta.getDouble("SALARIO"));
+        veterinario = new Veterinario(resultadoConsulta.getInt("id"), resultadoConsulta.getString("nome"),
+            resultadoConsulta.getString("crmv"), resultadoConsulta.getDouble("salario"));
       }
     } catch (SQLException e) {
-      throw new ColecaoException("Erro ao buscar o veterinário pelo CRMV!", e);
+      throw new ColecaoException("Erro ao buscar o veterinário pelo crmv!", e);
     } finally {
       try {
         resultadoConsulta.close();
@@ -137,36 +139,41 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
   }
 
   @Override
-  public void inserir(Veterinario veterinario) throws ColecaoException {
+public void inserir(Veterinario veterinario) throws ColecaoException {
     PreparedStatement comandoSql = null;
     ResultSet resultadoConsulta = null;
     try {
-      String sql = "INSERT INTO VETERINARIO (NOME, CRMV, SALARIO) VALUES (?, ?, ?)";
-      comandoSql = this.conexao.prepareStatement(sql);
-      comandoSql.setString(1, veterinario.getNome());
-      comandoSql.setString(2, veterinario.getCrmv());
-      comandoSql.setDouble(3, veterinario.getSalario());
-      comandoSql.execute();
-      resultadoConsulta = comandoSql.getGeneratedKeys();
-      if (resultadoConsulta.next()) {
-        veterinario.setId(resultadoConsulta.getInt(1));
-      }
+        String sql = "INSERT INTO veterinario (nome, crmv, salario) VALUES (?, ?, ?)";
+        // Passando Statement.RETURN_GENERATED_KEYS para obter as chaves geradas
+        comandoSql = this.conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        comandoSql.setString(1, veterinario.getNome());
+        comandoSql.setString(2, veterinario.getCrmv());
+        comandoSql.setDouble(3, veterinario.getSalario());
+        comandoSql.execute();
+
+        // Obtendo a chave gerada
+        resultadoConsulta = comandoSql.getGeneratedKeys();
+        if (resultadoConsulta.next()) {
+            veterinario.setId(resultadoConsulta.getInt(1)); // Definindo o ID gerado
+        }
     } catch (SQLException e) {
-      throw new ColecaoException("Erro ao inserir o veterinário!", e);
+        throw new ColecaoException("Erro ao inserir o veterinário!", e);
     } finally {
-      try {
-        comandoSql.close();
-      } catch (SQLException e) {
-        throw new ColecaoException("Erro ao fechar PreparedStatement!", e);
-      }
+        try {
+            if (resultadoConsulta != null) resultadoConsulta.close();
+            if (comandoSql != null) comandoSql.close();
+        } catch (SQLException e) {
+            throw new ColecaoException("Erro ao fechar recursos!", e);
+        }
     }
-  }
+}
+
 
   @Override
   public void alterar(Veterinario veterinario) throws ColecaoException {
     PreparedStatement comandoSql = null;
     try {
-      String sql = "UPDATE VETERINARIO SET NOME = ?, CRMV = ?, SALARIO = ? WHERE ID = ?";
+      String sql = "UPDATE veterinario SET nome = ?, crmv = ?, salario = ? WHERE id = ?";
       comandoSql = this.conexao.prepareStatement(sql);
       comandoSql.setString(1, veterinario.getNome());
       comandoSql.setString(2, veterinario.getCrmv());
@@ -188,7 +195,7 @@ public class ColecaoDeVeterinarioImpl implements ColecaoDeVeterinario {
   public void excluir(int id) throws ColecaoException {
     PreparedStatement comandoSql = null;
     try {
-      String sql = "DELETE FROM VETERINARIO WHERE ID = ?";
+      String sql = "DELETE FROM veterinario WHERE id = ?";
       comandoSql = this.conexao.prepareStatement(sql);
       comandoSql.setInt(1, id);
       comandoSql.execute();
