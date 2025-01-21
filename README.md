@@ -269,3 +269,8 @@ Para compilar, empacotar e gerar o arquivo `.war`, execute os seguintes comandos
    ```bash
    mvn clean package
    ```
+
+2. **Executar o projeto:**
+   ```bash
+   java -jar seu-arquivo.war
+   ```
